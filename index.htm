@@ -1,0 +1,30 @@
+<!doctype html><html><head>
+<meta charset=Shift_JIS>
+<meta name=viewport content="width=device-width, initial-scale=1"><title>bsc-m03</title>
+<link rel=stylesheet href="0.css"></head><body>
+<form id=uform>
+	<label class=tofile id=kill>kill</label>
+	<label class=tofile><input type=file id=upfile>LOAD</label>
+	<label class=tofile id=save>Save</label>
+	<b class=tofile><label for=opts>&#8801;</label></b>
+	<label title="DON'T CHANGE IT WHILE PROCESSING"><input type=checkbox id=fdec>Decode</label>
+	<ol id=flist></ol>
+</form>
+<input type=button value="ready.." id=info>
+<div class=modal>
+	<input type=checkbox id=opts>
+	<div class="modalson m-up" style="overflow:hidden"><label for=opts>options</label><div style="overflow:auto;position:absolute;top:1.2em;bottom:0;width:100%">
+		<form id=oform>
+		<span class=tooltip>block size<span class="ttson tooltip-bottom">1-2047 MB / 1-2096128 KB / 256-2146435072 B</span></span><input type=text value=128 size=9 id=bs><select id=bkm><option>B<option>KB<option selected>MB</select>
+		<span class=tooltip>symbol size<span class="ttson tooltip-bottom">NOT SUPPORTED YET!</span></span><select id=ss><option>8<option disabled>16</select>
+		<span class=tooltip>SACA<span class="ttson tooltip-bottom">i2sr: improved 2 stage + rank sort<br>libsais: Induced Sorting</span></span><select id=sorter><option>i2sr<option>libsais</select>
+		</form>
+	</div></div>
+</div>
+<script src="i2sr.js"></script>
+<script src="libsais.js"></script>
+<script src="parse.js"></script>
+<script src="rc.js"></script>
+<script src="table.js"></script>
+<script src="m03a.js"></script>
+<script src="init.js"></script>
