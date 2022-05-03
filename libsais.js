@@ -1,14 +1,14 @@
 // based on libsais v1.0.0
 const SUFFIX_GROUP_MARKER=1<<30;
-function SAcopy(A,a,B,b,n){for(n+=a;a<n;)A[a++]=B[b++]}
-function SAmove(A,a,B,b,n){
-	if(a+n<=b||b+n<=a)for(n+=a;a<n;)A[a++]=B[b++];
+function SAcopy(A,a,b,n){for(n+=a;a<n;)A[a++]=A[b++]}
+function SAmove(A,a,b,n){
+	if(a+n<=b||b+n<=a)for(n+=a;a<n;)A[a++]=A[b++];
 	else if(a<b){
 		var c=b,C=A.slice(b+b-a,b+n);
-		for(n+=a;a<c;)A[a++]=B[b++];
+		for(n+=a;a<c;)A[a++]=A[b++];
 		for(c=0;a<n;)A[a++]=C[c++]
 	}else{C=A.slice(c=a,b+n);
-		for(n+=a;b<c;)A[a++]=B[b++];
+		for(n+=a;b<c;)A[a++]=A[b++];
 		for(c=0;a<n;)A[a++]=C[c++]
 	}
 }
@@ -324,12 +324,12 @@ function libsais_renumber_and_gather_lms_suffixes_8u(SA,n,m){
 		p=SA[i++],SAm[(p&x)>>1]=name|o,name+=p<0;
 	for(j+=3;i<j;)p=SA[i++],SAm[(p&x)>>1]=name|o,name+=p<0;
 	if(name<m){
-		for(i=m+(n>>1)-1,j=m+3,l=n-1;i>=j;)
-			s=SA[i--],SA[l]=s&x,l-=s<0,
-			s=SA[i--],SA[l]=s&x,l-=s<0,
-			s=SA[i--],SA[l]=s&x,l-=s<0,
-			s=SA[i--],SA[l]=s&x,l-=s<0;
-		for(j-=3;i>=j;)s=SA[i--],SA[l]=s&x,l-=s<0
+		for(i=m+(n>>1),j=m+3,l=n-1;i>j;)
+			s=SA[--i],SA[l]=s&x,l-=s<0,
+			s=SA[--i],SA[l]=s&x,l-=s<0,
+			s=SA[--i],SA[l]=s&x,l-=s<0,
+			s=SA[--i],SA[l]=s&x,l-=s<0;
+		for(j-=3;i>j;)s=SA[--i],SA[l]=s&x,l-=s<0
 	}else for(;m;)SA[--m]&=x;
 	return name
 }
@@ -360,11 +360,11 @@ function libsais_renumber_and_mark_distinct_lms_suffixes_32s_1k(T,SA,n,m){
 	for(j+=3;i<j;)p=SA[i++],SAm[p>>>1]=SA[i]-p+o+1;
 	SAm[SA[n-1]>>>1]=o+1;
 	for(i=0,j=(n>>1)-3;i<j;)
-		p=SAm[i],SAm[i++]=p<0?p&x:0,
-		p=SAm[i],SAm[i++]=p<0?p&x:0,
-		p=SAm[i],SAm[i++]=p<0?p&x:0,
-		p=SAm[i],SAm[i++]=p<0?p&x:0;
-	for(j+=3;i<j;)p=SAm[i],SAm[i++]=p<0?p&x:0;
+		p=SAm[i],SAm[i++]=p<0&&p&x,
+		p=SAm[i],SAm[i++]=p<0&&p&x,
+		p=SAm[i],SAm[i++]=p<0&&p&x,
+		p=SAm[i],SAm[i++]=p<0&&p&x;
+	for(j+=3;i<j;)p=SAm[i],SAm[i++]=p<0&&p&x;
 	p=SA[0];var pl=SAm[p>>1],pd=o;
 	for(i=1,j=m-1;i<j;){
 		var q=SA[i++],ql=SAm[q>>1],qd=o;
@@ -381,14 +381,14 @@ function libsais_renumber_and_mark_distinct_lms_suffixes_32s_1k(T,SA,n,m){
 		p=q;pl=ql
 	}
 	SAm[p>>1]=name|pd;
-	if(name++<m){
+	if(name<m){
 		for(i=m,j=m+(n>>1)-3,l=-1;i<j;)
 			p=SA[i],SA[i++]=p&(l|x),p||(p=l),
 			q=SA[i],SA[i++]=q&(p|x),q||(q=p),
 			m=SA[i],SA[i++]=m&(q|x),m||(m=q),
 			l=SA[i],SA[i++]=l&(m|x),l||(l=m);
 		for(j+=3;i<j;)m=l,l=SA[i],SA[i++]=l&(m|x),l||(l=m)
-	}return--name
+	}return name
 }
 function libsais_reconstruct_lms_suffixes(SA,n,m){
 	for(var SAnm=SA.subarray(n-m),i=0,j=m-3;i<j;)
@@ -398,52 +398,52 @@ function libsais_reconstruct_lms_suffixes(SA,n,m){
 function libsais_place_lms_suffixes_interval_8u(SA,n,m,B){
 	for(var E=B.subarray(1792),c=255,i,j=n,l;c--;){
 		l=B[c*2+3]-B[c*2+1];
-		if(l>0)i=E[c],j>i&&SA.fill(0,i,j),SAmove(SA,j=i-l,SA,m-=l,l)
+		if(l>0)i=E[c],j>i&&SA.fill(0,i,j),SAmove(SA,j=i-l,m-=l,l)
 	}
 	SA.fill(0,0,j)
 }
 function libsais_place_lms_suffixes_interval_32s_4k(SA,n,k,m,B){
 	for(var E=B.subarray(3*k),c=k-1,i,j=n,l;c--;){
 		l=B[c*2+3]-B[c*2+1];
-		if(l>0)i=E[c],j>i&&SA.fill(0,i,j),SAmove(SA,j=i-l,SA,m-=l,l)
+		if(l>0)i=E[c],j>i&&SA.fill(0,i,j),SAmove(SA,j=i-l,m-=l,l)
 	}
 	SA.fill(0,0,j)
 }
 function libsais_place_lms_suffixes_interval_32s_2k(SA,n,k,m,B){
 	for(var c=k-2<<1,i,j=n,l;c>=0;c-=2){
 		l=B[c+3]-B[c+1];
-		if(l>0)i=B[c],j>i&&SA.fill(0,i,j),SAmove(SA,j=i-l,SA,m-=l,l)
+		if(l>0)i=B[c],j>i&&SA.fill(0,i,j),SAmove(SA,j=i-l,m-=l,l)
 	}
 	SA.fill(0,0,j)
 }
 function libsais_place_lms_suffixes_interval_32s_1k(T,SA,n,k,m,B){
 	for(var i=m,c,l=B[--k],p;i>3;){
-		if(T[p=SA[--i]]!==k)SA.fill(0,c=B[k=T[p]],l),l=c;SA[--l]=p;
-		if(T[p=SA[--i]]!==k)SA.fill(0,c=B[k=T[p]],l),l=c;SA[--l]=p;
-		if(T[p=SA[--i]]!==k)SA.fill(0,c=B[k=T[p]],l),l=c;SA[--l]=p;
-		if(T[p=SA[--i]]!==k)SA.fill(0,c=B[k=T[p]],l),l=c;SA[--l]=p;
+		if(T[p=SA[--i]]^k)SA.fill(0,c=B[k=T[p]],l),l=c;SA[--l]=p;
+		if(T[p=SA[--i]]^k)SA.fill(0,c=B[k=T[p]],l),l=c;SA[--l]=p;
+		if(T[p=SA[--i]]^k)SA.fill(0,c=B[k=T[p]],l),l=c;SA[--l]=p;
+		if(T[p=SA[--i]]^k)SA.fill(0,c=B[k=T[p]],l),l=c;SA[--l]=p;
 	}
-	for(;i;SA[--l]=p)if(T[p=SA[--i]]!==k)SA.fill(0,c=B[k=T[p]],l),l=c;
+	for(;i;SA[--l]=p)if(T[p=SA[--i]]^k)SA.fill(0,c=B[k=T[p]],l),l=c;
 	SA.fill(0,0,l)
 }
 function libsais_place_lms_suffixes_histogram_32s_6k(SA,n,k,m,B){
 	for(var E=B.subarray(5*k),c=k-1,i,j=n,l;c--;){
 		l=B[c<<2|1];
-		if(l>0)i=E[c],j>i&&SA.fill(0,i,j),SAmove(SA,j=i-l,SA,m-=l,l)
+		if(l>0)i=E[c],j>i&&SA.fill(0,i,j),SAmove(SA,j=i-l,m-=l,l)
 	}
 	SA.fill(0,0,j)
 }
 function libsais_place_lms_suffixes_histogram_32s_4k(SA,n,k,m,B){
 	for(var E=B.subarray(3*k),c=k-1,i,j=n,l;c--;){
 		l=B[c*2+1];
-		if(l>0)i=E[c],j>i&&SA.fill(0,i,j),SAmove(SA,j=i-l,SA,m-=l,l)
+		if(l>0)i=E[c],j>i&&SA.fill(0,i,j),SAmove(SA,j=i-l,m-=l,l)
 	}
 	SA.fill(0,0,j)
 }
 function libsais_place_lms_suffixes_histogram_32s_2k(SA,n,k,m,B){
 	for(var c=k-2<<1,i,j=n,l;c>=0;c-=2){
 		l=B[c+1];
-		if(l>0)i=B[c],j>i&&SA.fill(0,i,j),SAmove(SA,j=i-l,SA,m-=l,l)
+		if(l>0)i=B[c],j>i&&SA.fill(0,i,j),SAmove(SA,j=i-l,m-=l,l)
 	}
 	SA.fill(0,0,j)
 }
@@ -552,7 +552,7 @@ function libsais_compact_lms_suffixes_32s(T,SA,n,m,fs){
 		p=SA[--i],SA[l]=p&x,l-=p<0,SA[r]=p-1,r-=p>0,
 		p=SA[--i],SA[l]=p&x,l-=p<0,SA[r]=p-1,r-=p>0;
 	for(j-=3;i>j;)p=SA[--i],SA[l]=p&x,l-=p<0,SA[r]=p-1,r-=p>0;
-	SAcopy(SA,n+fs-m,SA,l+1,f);
+	SAcopy(SA,n+fs-m,l+1,f);
 	return f
 }
 function libsais_merge_compacted_lms_suffixes_32s(T,SA,n,m,f){
@@ -574,10 +574,10 @@ function libsais_merge_compacted_lms_suffixes_32s(T,SA,n,m,f){
 }
 function libsais_reconstruct_compacted_lms_suffixes_32s_2k(T,SA,n,k,m,fs,f,B){
 	if(f>0)
-		SAcopy(SA,n-m-1,SA,n+fs-m,f),
+		SAcopy(SA,n-m-1,n+fs-m,f),
 		libsais_count_and_gather_compacted_lms_suffixes_32s_2k(T,SA,n,k,B),
 		libsais_reconstruct_lms_suffixes(SA,n,m-f),
-		SAcopy(SA,n-m-1+f,SA,0,m-f),
+		SAcopy(SA,n-m-1+f,0,m-f),
 		SA.fill(0,0,m),
 		libsais_merge_compacted_lms_suffixes_32s(T,SA,n,m,f);
 	else
@@ -586,10 +586,10 @@ function libsais_reconstruct_compacted_lms_suffixes_32s_2k(T,SA,n,k,m,fs,f,B){
 }
 function libsais_reconstruct_compacted_lms_suffixes_32s_1k(T,SA,n,k,m,fs,f){
 	if(f>0)
-		SAmove(SA,n-m-1,SA,n+fs-m,f),
+		SAmove(SA,n-m-1,n+fs-m,f),
 		libsais_gather_compacted_lms_suffixes_32s(T,SA,n),
 		libsais_reconstruct_lms_suffixes(SA,n,m-f),
-		SAcopy(SA,n-m-1+f,SA,0,m-f),
+		SAcopy(SA,n-m-1+f,0,m-f),
 		SA.fill(0,0,m),
 		libsais_merge_compacted_lms_suffixes_32s(T,SA,n,m,f);
 	else
