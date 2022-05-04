@@ -47,7 +47,7 @@ function M03e(A,bs,ss,done,rate){
 	function run(){
 		var C=p.C,P=p.P,S=p.S,a,q,l,t=+new Date;
 		for(rate(x,z);l=(q=p.current_segments).length;){
-			for(a=0,x+=l*1.5>>1;a<l;a=n){
+			for(a=0,x+=l*1.25+2>>1;a<l;a=n){
 				for(var i=q[a],e=i+C[i],n=a;++n<l&&q[n]<e;);
 				if(p.is_trivial_context(i))
 					split_trivial_context(C,S,P,p.next_segments,q,a,n);
