@@ -56,7 +56,7 @@ function M03e(A,bs,ss,done,rate){
 					p.split_context_recursive(q,a,n,0)
 			}
 			q.length=0;p.current_segments=p.next_segments.sort(cmp);p.next_segments=q;
-			if(l>255||l<3&&Date.now-t>200)return wait0(run)
+			if(l>255||l<3&&Date.now()-t>200)return wait0(run)
 		}p.destroy();wait0(top)
 	}return wait0(top)
 }
@@ -97,7 +97,7 @@ function M03d(A,done,rate){
 					p.split_context_recursive(q,a,n,0)
 			}
 			q.length=0;p.current_segments=p.next_segments.sort(cmp);p.next_segments=q;
-			if(l>255||l<3&&Date.now-t>200)return wait0(run)
+			if(l>255||l<3&&Date.now()-t>200)return wait0(run)
 		}
 		e=p.k;n=p.n;p.destroy();p=new Uint32Array(n);
 		for(i=e--;i;)F[i--]=F[i];
