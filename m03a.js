@@ -45,7 +45,7 @@ function M03e(A,bs,ss,done,rate){
 		wait0(run)
 	}
 	function run(){
-		var C=p.C,P=p.P,S=p.S,a,q,l,d=256,t=+new Date;
+		var C=p.C,P=p.P,S=p.S,a,q,l,t=+new Date;
 		for(rate(x,z);l=(q=p.current_segments).length;){
 			for(a=0,x+=l*1.5>>1;a<l;a=n){
 				for(var i=q[a],e=i+C[i],n=a;++n<l&&q[n]<e;);
@@ -56,7 +56,7 @@ function M03e(A,bs,ss,done,rate){
 					p.split_context_recursive(q,a,n,0)
 			}
 			q.length=0;p.current_segments=p.next_segments.sort(cmp);p.next_segments=q;
-			if(!--d||Date.now(d=256)-t>200)return wait0(run)
+			if(l>255||l<3&&Date.now-t>200)return wait0(run)
 		}p.destroy();wait0(top)
 	}return wait0(top)
 }
@@ -86,7 +86,7 @@ function M03d(A,done,rate){
 		wait0(run)
 	}
 	function run(){
-		var C=p.C,P=p.P,S=p.S,a,q,l,d=256,t=+new Date;
+		var C=p.C,P=p.P,S=p.S,a,q,l,t=+new Date;
 		for(rate(rc.a,z);l=(q=p.current_segments).length;){
 			for(a=0;a<l;a=n){
 				for(var i=q[a],e=i+C[i],n=a;++n<l&&q[n]<e;);
@@ -97,7 +97,7 @@ function M03d(A,done,rate){
 					p.split_context_recursive(q,a,n,0)
 			}
 			q.length=0;p.current_segments=p.next_segments.sort(cmp);p.next_segments=q;
-			if(!--d||Date.now(d=256)-t>200)return wait0(run)
+			if(l>255||l<3&&Date.now-t>200)return wait0(run)
 		}
 		e=p.k;n=p.n;p.destroy();p=new Uint32Array(n);
 		for(i=e--;i;)F[i--]=F[i];
