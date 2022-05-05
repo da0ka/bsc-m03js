@@ -33,12 +33,11 @@ function M03e(A,bs,ss,done,rate){
 		if(a&&n==bs)rc.EncodeBit(0,1,1);
 		else a&&rc.EncodeBit(1,1,1),rc.EncodeValue(0,bs=n,m);
 		if(!n)return done(rc.Flush(),z,rc.a);
-		a&&F.fill(0);x=a;
+		a&&F.fill(0);x=a;a+=n;
 		bp=BWTe(U.slice(),U,0,F,m=n);
 		n>1&&rc.EncodeValue(0,bp-1,n-1);
 		var i=0,bn=bs>>ss,L=new(ss?Uint16Array:Uint8Array)(bn+1);
-		for(;i<bp;)L[i++]=A[a++];
-		for(;i<bn;)L[++i]=A[a++];
+		L.set(U.subarray(0,bp));L.set(U.subarray(bp),bp+1);
 		p=new m03_parser(L,bn+1,bp,F,1<<8*(ss+1),rc,0);
 		p.encode_root_frequencies(F,p.k,bn);
 		p.initialize_root_context(F);
@@ -56,7 +55,7 @@ function M03e(A,bs,ss,done,rate){
 					p.split_context_recursive(q,a,n,0)
 			}
 			q.length=0;p.current_segments=p.next_segments.sort(cmp);p.next_segments=q;
-			if(l>255||l<3&&Date.now()-t>200)return wait0(run)
+			if(l>1000||l<100&&Date.now()-t>333)return wait0(run)
 		}p.destroy();wait0(top)
 	}return wait0(top)
 }
@@ -97,7 +96,7 @@ function M03d(A,done,rate){
 					p.split_context_recursive(q,a,n,0)
 			}
 			q.length=0;p.current_segments=p.next_segments.sort(cmp);p.next_segments=q;
-			if(l>255||l<3&&Date.now()-t>200)return wait0(run)
+			if(l>1000||l<100&&Date.now()-t>333)return wait0(run)
 		}
 		e=p.k;n=p.n;p.destroy();p=new Uint32Array(n);
 		for(i=e--;i;)F[i--]=F[i];
