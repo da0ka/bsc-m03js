@@ -3,14 +3,12 @@ const SUFFIX_GROUP_MARKER=1<<30;
 function SAcopy(A,a,b,n){for(n+=a;a<n;)A[a++]=A[b++]}
 function SAmove(A,a,b,n){
 	if(a+n<=b||b+n<=a)for(n+=a;a<n;)A[a++]=A[b++];
-	else if(a<b){
+	else{if(a<b){
 		var c=b,C=A.slice(b+b-a,b+n);
-		for(n+=a;a<c;)A[a++]=A[b++];
-		for(c=0;a<n;)A[a++]=C[c++]
+		for(n+=a;a<c;)A[a++]=A[b++]
 	}else{C=A.slice(c=a,b+n);
-		for(n+=a;b<c;)A[a++]=A[b++];
-		for(c=0;a<n;)A[a++]=C[c++]
-	}
+		for(n+=a;b<c;)A[a++]=A[b++]
+	}for(c=0;a<n;)A[a++]=C[c++]}
 }
 function libsais_gather_lms_suffixes_8u(T,SA,n){
 	for(var i=n-1,m=i,s=1,c0=T[i],c1=0;i>3;s^1||--m)
