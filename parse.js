@@ -284,7 +284,7 @@ predict:function(c,t,ln,rn,sn,s,lv,leaf){
 		i=ln+rn+r===sn;
 		i+=2*(ln==t);i+=4*h;i+=8*leaf;
 		i+=Math.min(bit_scan_reverse(r+1),3)<<4;
-		i+=Math.min(sn-2,7)<<6;
+		i+=sn<9?sn-2<<6:448;
 		i+=(ln*11/rn)<<9;
 		if(t<2){
 			i=m03_T1_model_state_table[i];
