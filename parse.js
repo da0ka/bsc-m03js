@@ -30,7 +30,7 @@ function hutucker_get_lengths(n,W,S,C){
 	for(;i<m;)S[m-1+i++].n=0;
 	for(i--;i;)segupdate(S,--i,2*i+1,2*i+2,W);
 	for(;k<n-1;){
-		W[i=S.i]+=W[j=S.j];
+		W[i=S[0].i]+=W[j=S[0].j];
 		C[i]=pa[C[i]]=pa[C[j]]=n+k++;
 		s=S[m-1+i],s.n=1,s.m=0,s.l=s.r=i;
 		for(l=m+i;l>>=1;)segupdate(S,l-1,2*l-1,2*l,W);
