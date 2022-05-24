@@ -10,9 +10,10 @@ function bit_scan_reverse(a,b,c){
 	c=(65535<a)<<4,c|=b=(255<(a>>=c))<<3,c|=b=(15<(a>>=b))<<2;return(c|=b=(3<(a>>=b))<<1)|a>>b>>1
 }
 function segupdate(S,pa,lc,rc,w){
-	if(!S[lc].n)return S[pa]=S[rc];
-	if(!S[rc].n)return S[pa]=S[lc];
-	pa=S[pa];lc=S[lc];rc=S[rc];
+	lc=S[lc];rc=S[rc];
+	if(!lc.n)return S[pa]={n:rc.n,m:rc.m,l:rc.l,r:rc.r,i:rc.i,j:rc.j};
+	if(!rc.n)return S[pa]={n:lc.n,m:lc.m,l:lc.l,r:lc.r,i:lc.i,j:lc.j};
+	pa=S[pa];
 	pa.n=lc.n+rc.n;pa.m=lc.m+rc.m;
 	pa.l=lc.m||w[lc.l]<=w[rc.l]?lc.l:rc.l;
 	pa.r=!rc.m&&w[lc.r]<=w[rc.r]?lc.r:rc.r;
@@ -161,7 +162,7 @@ choose_context_pivot_using_heuristic:function(O,a,z){
 		for(z=0;++i<c;){
 			for(b=F[i];z<b;)path[z++]=0;
 			if(path[0])return a+i;
-			for(;b;)if(path[--b]^=1)break
+			for(z=b;b;)if(path[--b]^=1)break
 		}throw 0
 	}
 	b=1+O[++a]-b;
@@ -237,7 +238,7 @@ split_context_by_pivot:function f(p,r,lv,lf,rf){
 is_trivial_context:function(a){return!this.C[a+1]&&this.primary_index-a>>>0>=this.C[a]},
 
 encode_root_frequencies:function(F0,k,n){
-	for(var i=0,a=1,b=2,p=k,F=new Float64Array(33),S=new Float64Array(33),N=n,M=n,c=k;p;)F[bit_scan_reverse(F0[--p]+1)]++;
+	for(var i=0,a=1,b=2,c=k,p=k,F=new Float64Array(33),S=new Float64Array(33),N=n,M=n;p;)F[bit_scan_reverse(F0[--p]+1)]++;
 	for(;i<33&&c>0;c-=f){
 		var f=F[i++],min=Math.max(c-(M/(b-1)>>>0),0),max=c*(b-2)<N?c-1:c;
 		this.coder.EncodeValue(min>>>0,f>>>0,max>>>0);
@@ -245,7 +246,7 @@ encode_root_frequencies:function(F0,k,n){
 	}
 	for(i=33,a=(1<<30)*4,b=a*2,c=N=M=0;i--;b/=2)
 		S[i]=c,c+=f=F[i],N+=f*(a-1),M+=f*(b-2),a/=2;
-	for(p=0;p<k;this.coder.EncodeValue(min>>>0,f>>>0,max>>>0)){
+	for(;p<k;this.coder.EncodeValue(min>>>0,f>>>0,max>>>0)){
 		for(i=0,a=1,b=2,c=bit_scan_reverse(F0[p]+1);i<c;S[i++]--,a*=2,b*=2)
 			f=F[i],f>0&&this.coder.Encode(f>>>0,S[i]>>>0,f+S[i]>>>0);
 		S[i]>0&&this.coder.Encode(0,F[i]>>>0,F[i]+S[i]>>>0);
@@ -256,13 +257,13 @@ encode_root_frequencies:function(F0,k,n){
 	}
 },
 decode_root_frequencies:function(F0,k,n){
-	for(var i=0,a=1,b=2,F=new Float64Array(33),S=new Float64Array(33),N=n,M=n,c=k;i<33&&c>0;c-=f){
+	for(var i=0,a=1,b=2,c=k,p=0,F=new Float64Array(33),S=new Float64Array(33),N=n,M=n;i<33&&c>0;c-=f){
 		var min=Math.max(c-((M/(b-1)>>>0)),0),max=c*(b-2)<N?c-1:c,f=F[i++]=this.coder.DecodeValue(min>>>0,max>>>0);
 		N-=f*(b-2);M-=f*(a-1),a*=2,b*=2
 	}
 	for(i=33,a=(1<<30)*4,b=a*2,c=N=M=0;i--;b/=2)
 		S[i]=c,c+=f=F[i],N+=f*(a-1),M+=f*(b-2),a/=2;
-	for(var p=0;p<k;n-=F0[p++]=this.coder.DecodeValue(min>>>0,max>>>0)){
+	for(;p<k;n-=F0[p++]=this.coder.DecodeValue(min>>>0,max>>>0)){
 		for(i=0,a=1,b=2;S[i]>0;S[i++]--,a*=2,b*=2)if((f=F[i])>0){
 			if(this.coder.GetCumFreq(c=f+S[i]>>>0)<f){
 				this.coder.Decode(0,f>>>0,c);break
