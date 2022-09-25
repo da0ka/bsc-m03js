@@ -7,7 +7,7 @@ function memove(A,B,C,a,b,n){
 	}
 }
 function bit_scan_reverse(a,b,c){
-	c=(65535<a)<<4,c|=b=(255<(a>>=c))<<3,c|=b=(15<(a>>=b))<<2;return(c|=b=(3<(a>>=b))<<1)|a>>b>>1
+	c=(65535<a)<<4,c|=b=(255<(a>>>=c))<<3,c|=b=(15<(a>>=b))<<2;return(c|=b=(3<(a>>=b))<<1)|a>>b>>1
 }
 function segupdate(S,pa,lc,rc,w){
 	lc=S[lc];rc=S[rc];
@@ -16,7 +16,7 @@ function segupdate(S,pa,lc,rc,w){
 	pa=S[pa];
 	pa.n=lc.n+rc.n;pa.m=lc.m+rc.m;
 	pa.l=lc.m||w[lc.l]<=w[rc.l]?lc.l:rc.l;
-	pa.r=!rc.m&&w[lc.r]<=w[rc.r]?lc.r:rc.r;
+	pa.r=rc.m||w[lc.r]>w[rc.r]?rc.r:lc.r;
 	pa.i=lc.r;pa.j=rc.l;
 	if(lc.n>1&&w[lc.i]+w[lc.j]<=w[pa.i]+w[pa.j])pa.i=lc.i,pa.j=lc.j;
 	if(rc.n>1&&w[rc.i]+w[rc.j]<w[pa.i]+w[pa.j])pa.i=rc.i,pa.j=rc.j
@@ -162,7 +162,7 @@ choose_context_pivot_using_heuristic:function(O,a,z){
 		for(z=0;++i<c;){
 			for(b=F[i];z<b;)path[z++]=0;
 			if(path[0])return a+i;
-			for(z=b;b;)if(path[--b]^=1)break
+			for(z=b;b&&!(path[--b]^=1););
 		}throw 0
 	}
 	b=1+O[++a]-b;
@@ -205,7 +205,7 @@ build_optimal_alphabetic_tree:function(O,a,z){
 				if(z<c)c=z,b=i&255
 			}
 },
-split_context_by_pivot:function f(p,r,lv,lf,rf){
+split_context_by_pivot:function(p,r,lv,lf,rf){
 	var i,c,o=this.primary_index,s,C=this.C,t=C[p],P=this.P,S=this.S,ps=t,ls=r-p,rs=ps-ls,u=p+1,lu=0,ru=p,Lc=this.Lc,Lp=this.Lp,Ls=this.Ls,F=this.left_frequencies;
 	t-=o-p>>>0<t;
 	if(this.mode){
@@ -280,13 +280,9 @@ predict:function(c,t,ln,rn,sn,s,lv,leaf){
 	t-=r;if(lv>=d)lv=d-1;
 	H[d=s*d+lv]=!ln;
 	if(t<1)return 0;
-	rn-=r<<1;h=lv>1?H[d-1]|H[d-2]:lv&&H[d-1];
+	rn-=r<<1;h=lv>1?H[d-1]|H[d-2]:lv&&H[d-1];i=ln*11/rn<<9;
 	if(t<3){
-		i=ln+rn+r===sn;
-		i+=2*(ln==t);i+=4*h;i+=8*leaf;
-		i+=Math.min(bit_scan_reverse(r+1),3)<<4;
-		i+=sn<9?sn-2<<6:448;
-		i+=(ln*11/rn)<<9;
+		i+=ln+rn+r===sn|(ln===t&&2)|4*h|8*leaf|Math.min(bit_scan_reverse(r+1),3)<<4|(sn<9?sn-2<<6:448);
 		if(t<2){
 			i=m03_T1_model_state_table[i];
 			P=this.T1_model.subarray(i*2);r=P[0]+P[1];
@@ -312,37 +308,30 @@ predict:function(c,t,ln,rn,sn,s,lv,leaf){
 			H[d]=c!==1
 		}
 	}else{
-		i=Math.min(bit_scan_reverse(sn-1),3);
-		i+=4*(r>0);i+=8*(ln===t);
-		i+=leaf<<4;i+=h<<5;
-		i+=Math.min(bit_scan_reverse(t-2),7)<<6;
-		i+=ln*11/rn<<9;
+		i+=Math.min(bit_scan_reverse(sn-1),3)|(r&&4)|(ln===t&&8)|leaf<<4|h<<5|Math.min(bit_scan_reverse(t-2),7)<<6;
 		i=m03_Ternary_model_state_table[i];
 		P=this.Ternary_model.subarray(i*4);b=P[0]+P[1]+P[2];
 		if(b>m03_Ternary_model_scale_table[i])
 			b=P[0]-=P[0]>>1,b+=P[1]-=P[1]>>1,b+=P[2]-=P[2]>>1;
-		if(this.mode){
-			f=this.coder.GetCumFreq(b);
-			p=0|(f>=P[0])+(f>=P[0]+P[1]);
-			f=p&&(p<2?P[0]:P[0]+P[1]);
-			this.coder.Decode(f,P[p]++,b);
-		}else p=0|(c>0)+(c===t),this.coder.Encode(p&&(p<2?P[0]:P[0]+P[1]),P[p]++,b);
+		if(this.mode)
+			f=this.coder.GetCumFreq(b),
+			p=0|(f>=P[0])+(f>=P[0]+P[1]),
+			this.coder.Decode(p&&(p<2?P[0]:P[0]+P[1]),P[p]++,b);
+		else p=0|(c>0)+(c===t),this.coder.Encode(p&&(p<2?P[0]:P[0]+P[1]),P[p]++,b);
 		if(H[d]=p!==1)c=p&&t;
 		else{
-			i=r>--t;i+=2*h;
-			i+=t<17?t-2<<2:60;
-			i+=ln*5/rn<<6;i*=16;
+			i=(r>--t|2*h|(t<17?t-2<<2:60)|ln*5/rn<<6)<<4;
 			for(n=h=1;n^t&&h<16;h+=h+b){
 				p=m03_Tree_model_state_table[i+h];
 				P=this.Tree_model.subarray(p*2);r=P[0]+P[1];
 				if(r>m03_Tree_model_scale_table[p])
 					r=P[0]-=P[0]>>1,r+=P[1]-=P[1]>>1;
 				p=n+(t-n+1>>1);
-				if(this.mode){
-					f=this.coder.GetCumFreq(r);
-					b=0|f>=P[0];
+				if(this.mode)
+					f=this.coder.GetCumFreq(r),
+					b=0|f>=P[0],
 					this.coder.Decode(b&&P[0],P[b]++,r);
-				}else b=0|c>=p,this.coder.Encode(b&&P[0],P[b]++,r);
+				else b=0|c>=p,this.coder.Encode(b&&P[0],P[b]++,r);
 				b?n=p:t=p-1
 			}this.mode?c=this.coder.DecodeValue(n,t):this.coder.EncodeValue(n,c,t)
 		}
